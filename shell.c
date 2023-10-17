@@ -19,7 +19,6 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 	while (!brk && ((read = _getline(&lineptr, &len, stdin)) != -1))
 	{
 		brk = run_semis(lineptr, &i, av, &exit_status, env);
-		i++;
 		putprompt();
 	}
 	if (read == -1 && isatty(STDIN_FILENO) == 1)

@@ -81,7 +81,7 @@ int run_ret(char **args, char *name, char **env, int i)
 int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 {
     char **commands, *line, **args;
-    int j, l;
+    int j, l, run_and_ex;
 
     if (!(is_spaces(lineptr)) && strlen(lineptr))
     {
@@ -99,7 +99,11 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 
             if (contains_and_or(line, '&'))
             {
-                *exit_status = run_and(line, av[0], env, *i);
+                run_and_ex = run_and(line, av[0], env, i, exit_status);
+                if (run_and_ex == -1)
+                {
+                    return (1);
+                }
                 continue;
             }
 
@@ -114,6 +118,7 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
                 free_array(commands);
                 return (1);
             }
+            (*i)++;
             run_command(args, av[0], env, *i, exit_status);
             free_array(args);
         }
@@ -122,7 +127,7 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
     return (0);
 }
 
-int run_and(char *line, char *name, char **env, int cmd_count)
+int run_and(char *line, char *name, char **env, int *cmd_count, int *ex)
 {
     char **cmds = NULL, *line_c;
     int i = 0, error = 0;
@@ -138,17 +143,25 @@ int run_and(char *line, char *name, char **env, int cmd_count)
         /*******/
         if (strcmp(args[0], "exit") == 0)
         {
+            if (args[1] != NULL)
+            {
+                *ex = atoi(args[1]);
+                free_array(args);
+                free_array(cmds);
+                return (-1);
+            }
+            *ex = 0;
             free_array(args);
             free_array(cmds);
-            if (args[1] != NULL)
-                return atoi(args[1]);
+            return (-1);
         }
         /******/
-        error = run_ret(args, name, env, cmd_count);
+        (*cmd_count)++;
+        error = run_ret(args, name, env, *cmd_count);
         free_array(args);
     }
     free_array(cmds);
-    return (0);
+    return (error);
 }
 
 char **tokenize_and_or(char *line, char and_or)

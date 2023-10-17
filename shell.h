@@ -53,7 +53,7 @@ int run_ret(char **args, char *name, char **env, int i);
 int contains_and_or(char *line, char and_or);
 int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env);
 
-int run_and(char *line, char *name, char **env, int i);
+int run_and(char *line, char *name, char **env, int *cmd_count, int *ex);
 char **tokenize_and_or(char *line, char and_or);
 
 #endif
