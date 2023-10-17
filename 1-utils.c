@@ -140,12 +140,14 @@ int _setenv(char *var, char *value, int overwrite, char **env)
 	if (found && !overwrite)
 		return (0);
 	envi = malloc(sizeof(char) * (strlen(var) + strlen(value) + 2));
+	env[i] = malloc(sizeof(envi));
 	strcpy(envi, var);
 	strcat(envi, "=");
 	strcat(envi, value);
-	env[i] = envi;
+	strcpy(env[i], envi);
+	/*env[i] = envi;*/
+	free(envi);
 	if (!found)
 		env[i + 1] = NULL;
-	free(envi);
 	return (0);
 }
