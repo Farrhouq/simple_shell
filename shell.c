@@ -5,6 +5,37 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
+void run_command(char **args, char *name, char **env, int i, int *ex)
+{
+	pid_t child_pid;
+	char *path;
+	int b = 1, status;
+
+	path = find_exec_path(args[0], env);
+	if (path == NULL)
+	{
+		print_error(name, i, args[0], "not found");
+		*ex = 127;
+		return;
+	}
+	child_pid = fork();
+	if (child_pid == -1)
+		print_error(name, i, "fork", "Can't create another process");
+	else if (child_pid == 0)
+	{
+		if (execve(path, args, env) == -1)
+			perror(args[0]);
+	}
+	else
+	{
+		if (wait(&status) == -1)
+			perror("wait");
+		else if (WIFEXITED(status))
+			*ex = WEXITSTATUS(status);
+	}
+	free(path);
+}
+
 
 int main(int ac, char **av, char **env)
 {
