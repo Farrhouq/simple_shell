@@ -1,5 +1,12 @@
 #include "shell.h"
 
+/**
+ * contains_and_or - checks if a command line has logical operators || or &&
+ * @line: the line
+ * @and_or: specifier & or |
+ *
+ * Return: 1 if true, else 0
+*/
 int contains_and_or(char *line, char and_or)
 {
 	int i = 0;
@@ -26,7 +33,6 @@ int contains_and_or(char *line, char and_or)
  * @name: the name of the caller
  * @env: environment variables of the caller
  * @i: the command count
- * @exit_status: exit status
  *
  * Return: the exit status of the command
  */
@@ -47,8 +53,7 @@ int run_ret(char **args, char *name, char **env, int i)
 	}
 	path = find_exec_path(args[0], env);
 	if (path == NULL)
-	{
-		print_error(name, i, args[0], "not found");
+	{   print_error(name, i, args[0], "not found");
 		ex = 127;
 		free(path);
 		return (ex);
@@ -76,29 +81,33 @@ int run_ret(char **args, char *name, char **env, int i)
 	return (0);
 }
 
+/**
+ * run_semis - handles command separator ';'
+ * @lineptr: the command line
+ * @i: the command count - for errors
+ * @av: the caller's args
+ * @exit_status: exit status of the caller to be set here
+ * @env: the caller's environment
+ *
+ * Return: 1 if exiting else 0
+ */
 int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 {
 	char **commands, *line, **args;
-	int j, l, run_and_ex;
+	int j, run_and_ex;
 
 	if (!(is_spaces(lineptr)) && strlen(lineptr))
 	{
 		commands = gen_tokens(lineptr, ";");
 		j = 0;
 		while (commands[j] != NULL)
-		{
-			line = commands[j++];
-			for (l = 0; line[l] != '\0'; l++)
-			{
-				if (line[l] == '\n' && !line[l + 1])
-					line[l] = '\0';
-			}
+		{   line = commands[j++];
+
+			clean_line(line);
 			if (contains_and_or(line, '&') || contains_and_or(line, '|'))
-			{
-				run_and_ex = run_and(line, av[0], env, i, exit_status);
+			{   run_and_ex = run_and(line, av[0], env, i, exit_status);
 				if (run_and_ex == -1)
-				{
-					free_array(commands);
+				{   free_array(commands);
 					return (1);
 				}
 				continue;
@@ -123,6 +132,16 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 	return (0);
 }
 
+/**
+ * run_and - handles the logical operator &&
+ * @line: the command line
+ * @name: the name of the caller
+ * @env: the caller's environment
+ * @cmd_count: the command count - for errors
+ * @ex: exit status of the caller to be set here
+ *
+ * Return: -1 if exiting else 0
+ */
 int run_and(char *line, char *name, char **env, int *cmd_count, int *ex)
 {
 	char **cmds = NULL, *line_c;
@@ -131,15 +150,11 @@ int run_and(char *line, char *name, char **env, int *cmd_count, int *ex)
 
 	cmds = tokenize_and_or(line, '&');
 	while (cmds[i] != NULL && !error)
-	{
-		line_c = cmds[i++];
-
+	{   line_c = cmds[i++];
 		if (contains_and_or(line_c, '|'))
-		{
-			run_or_ex = run_or(line_c, name, env, cmd_count, ex);
+		{   run_or_ex = run_or(line_c, name, env, cmd_count, ex);
 			if (run_or_ex == -1)
-			{
-				free_array(cmds);
+			{   free_array(cmds);
 				return (-1);
 			}
 			continue;
@@ -170,7 +185,16 @@ int run_and(char *line, char *name, char **env, int *cmd_count, int *ex)
 	return (error);
 }
 
-
+/**
+ * run_or - handles the logical operator ||
+ * @line: the command line
+ * @name: the name of the caller
+ * @env: the caller's environment
+ * @cmd_count: the command count - for errors
+ * @ex: exit status of the caller to be set here
+ *
+ * Return: -1 if exiting else 0
+ */
 int run_or(char *line, char *name, char **env, int *cmd_count, int *ex)
 {
 	char **cmds = NULL, *line_c;
@@ -206,54 +230,3 @@ int run_or(char *line, char *name, char **env, int *cmd_count, int *ex)
 	free_array(cmds);
 	return (error);
 }
-
-char **tokenize_and_or(char *line, char and_or)
-{
-	int i = 0;
-	char *delim = (and_or == '&') ? "&&" : "||";
-	char *token, *s = line, **tokens = NULL;
-
-	if (line == NULL || delim == NULL)
-		return (NULL);
-	tokens = malloc(sizeof(char *) * (MAX_ARGS + 1));
-	if (tokens == NULL)
-	{
-		perror("malloc");
-		exit(1);
-	}
-	token = _strtok(s, delim);
-	while (token != NULL && i < MAX_ARGS - 1)
-	{
-		if (token == NULL)
-			return (NULL);
-		tokens[i] = strdup(token);
-		token = _strtok(NULL, delim);
-		i++;
-	}
-	tokens[i] = NULL;
-
-	return (tokens);
-}
-
-/*
-	Now I have to write functions to check if it contains stuff.
-	So first, in the scolon function, we'll take the command, break it down.
-	Then we'll take the commands one by one, and for each, we'll take it,
-	ask if it contains stuff (generally). If it doesn't, we'll run and move
-	to the next. If it does, (duhhh...), then we'll take that command, and pass
-	it to the run_and command. So the run_semis function is done here. No more
-	nesting.
-	Then in the run_and command, we have a line. So we break it down, based on &&.
-	If it doesn't contain &&, we'll ask, does it contain stuff(|| at this point?
-	If it's a clear line, then it won't even get to this function. So it must have
-	something. So at this point, we'll check if it has && first. If yes, then
-	we'll break it down, then for each, we'll RUN UNTIL WE FINISH OR GET AN ERROR.
-	If no, then we'll just pass it to the run_or function. (Because it surely
-	has something in it).
-	But let's come back here. If yes, then while not error encountered:
-	first we'll check if it's clean. If yes then we'll run and keep track
-	of the exit status. If no, then we'll pass it to the run_or function while
-	still keeping track of the exit status. Easy, no nesting.
-	Now for the run_or function. We'll RUN UNTIL WE DON'T GET AN ERROR. Then
-	we'll return 0;
-*/

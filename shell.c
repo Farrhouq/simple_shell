@@ -10,7 +10,7 @@
  */
 int main(__attribute__((unused)) int ac, char **av, char **env)
 {
-	int i = 1, exit_status = 0, brk = 0;
+	int cmd_count = 0, exit_status = 0, brk = 0;
 	ssize_t read;
 	size_t len = 0;
 	char *lineptr = NULL;
@@ -18,7 +18,7 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 	putprompt();
 	while (!brk && ((read = _getline(&lineptr, &len, stdin)) != -1))
 	{
-		brk = run_semis(lineptr, &i, av, &exit_status, env);
+		brk = run_semis(lineptr, &cmd_count, av, &exit_status, env);
 		putprompt();
 	}
 	if (read == -1 && isatty(STDIN_FILENO) == 1)
