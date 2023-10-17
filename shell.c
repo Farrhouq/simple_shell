@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <string.h>
 
 void run_command(char **args, char *name, char **env, int i, int *ex)
 {
@@ -46,7 +47,7 @@ int main(int ac, char **av, char **env)
 
 	if (isatty(STDIN_FILENO) == 1)
 		_puts(prompt);
-	while ((rd = _getline(&line, &len, stdin)) != -1)
+	while ((rd = getline(&line, &len, stdin)) != -1)
 	{
 		if (strlen(line) > 1 && check_spaces(line) != 0)
 		{
@@ -54,22 +55,15 @@ int main(int ac, char **av, char **env)
 			tokens = tokenizer(line, " ");
 			if (tokens == NULL)
 				continue;
-			if (strcmp(tokens[0], "exit") == 0)
-			{
-				if (tokens[1] != NULL)
-					ex = atoi(tokens[1]);
-				free_tokens(tokens);
-				break;
-			}
+			
 			run_command(tokens, av[0], env, i, &ex);
-			free_tokens(tokens);
 		}
 		i++;
 		if (isatty(STDIN_FILENO) == 1)
-			_puts(prompt);
+			puts(prompt);
 	}
 	if (rd == -1 && isatty(STDIN_FILENO) == 1)
-		_putchar('\n');
+		putchar('\n');
 	free(line);
     
 	return (ex);
@@ -101,7 +95,6 @@ char *find_exec_path(char *command, char **env)
 		complete_path = construct_path(command, dirs[i]);
 		if (access(complete_path, X_OK) == 0)
 		{
-			free_array(dirs);
 			free(path);
 			return (complete_path);
 		}
@@ -111,6 +104,5 @@ char *find_exec_path(char *command, char **env)
 	}
 	free(complete_path);
 	free(path);
-	free_array(dirs);
 	return (NULL);
 }
