@@ -102,6 +102,7 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
                 run_and_ex = run_and(line, av[0], env, i, exit_status);
                 if (run_and_ex == -1)
                 {
+                    free_array(commands);
                     return (1);
                 }
                 continue;
