@@ -1,72 +1,51 @@
 #include "shell.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <string.h>
 
-void run_command(char **args, char *name, char **env, int i, int *ex)
+/**
+ * main - the starting point of our simple shell
+ * @ac: command line argument count
+ * @av: NULL terminated strnig array of commandline arguments
+ * @env: the environment variables
+ *
+ * Return: 0 on success, 1 otherwise
+ */
+int main(__attribute__((unused)) int ac, char **av, char **env)
 {
-	pid_t child_pid;
-	char *path;
-	int b = 1, status;
+	int i = 1, exit_status = 0, brk = 0;
+	ssize_t read;
+	size_t len = 0;
+	char *lineptr = NULL;
 
-	path = find_exec_path(args[0], env);
-	if (path == NULL)
+	putprompt();
+	while (!brk && ((read = _getline(&lineptr, &len, stdin)) != -1))
 	{
-		print_error(name, i, args[0], "not found");
-		*ex = 127;
-		return;
+		brk = run_semis(lineptr, &i, av, &exit_status, env);
+		i++;
+		putprompt();
 	}
-	child_pid = fork();
-	if (child_pid == -1)
-		print_error(name, i, "fork", "Can't create another process");
-	else if (child_pid == 0)
-	{
-		if (execve(path, args, env) == -1)
-			perror(args[0]);
-	}
-	else
-	{
-		if (wait(&status) == -1)
-			perror("wait");
-		else if (WIFEXITED(status))
-			*ex = WEXITSTATUS(status);
-	}
-	free(path);
+	if (read == -1 && isatty(STDIN_FILENO) == 1)
+		_putchar('\n');
+	free(lineptr);
+	return (exit_status);
 }
 
-
-int main(int ac, char **av, char **env)
+/**
+ * is_spaces - checks if a newline terminated string is all spaces
+ * @str: the string
+ *
+ * Return: 1 if true otherwise 0
+ */
+int is_spaces(char *str)
 {
-    int i = 1, ex = 0;
-	size_t len = 0;
-	ssize_t rd;
-	char *line = NULL, **tokens = NULL, *prompt = "$ ";
+	unsigned int i = 0;
+	char nt = '\0', tab = '\t', nl = '\n', space = ' ';
 
-	if (isatty(STDIN_FILENO) == 1)
-		_puts(prompt);
-	while ((rd = getline(&line, &len, stdin)) != -1)
+	while (str[i] != nl && str[i] != nt)
 	{
-		if (strlen(line) > 1 && check_spaces(line) != 0)
-		{
-			remove_newline(line);
-			tokens = tokenizer(line, " ");
-			if (tokens == NULL)
-				continue;
-			
-			run_command(tokens, av[0], env, i, &ex);
-		}
+		if (str[i] != space && str[i] != tab)
+			return (0);
 		i++;
-		if (isatty(STDIN_FILENO) == 1)
-			puts(prompt);
 	}
-	if (rd == -1 && isatty(STDIN_FILENO) == 1)
-		putchar('\n');
-	free(line);
-    
-	return (ex);
+	return (1);
 }
 
 /**
@@ -95,6 +74,7 @@ char *find_exec_path(char *command, char **env)
 		complete_path = construct_path(command, dirs[i]);
 		if (access(complete_path, X_OK) == 0)
 		{
+			free_array(dirs);
 			free(path);
 			return (complete_path);
 		}
@@ -104,5 +84,106 @@ char *find_exec_path(char *command, char **env)
 	}
 	free(complete_path);
 	free(path);
+	free_array(dirs);
 	return (NULL);
+}
+
+char *construct_path(char *command, char *path)
+{
+	char *c_path = NULL, *slash = "/";
+	int len;
+
+	len = strlen(command) + strlen(path) + 2;
+	c_path = malloc((sizeof(char) * len));
+	if (c_path == NULL)
+		return (NULL);
+	strcpy(c_path, path);
+	strcat(c_path, slash);
+	strcat(c_path, command);
+
+	return (c_path);
+}
+
+/**
+ * run_command - runs the command
+ * @args: the commands
+ * @name: the name of the caller
+ * @env: environment variables of the caller
+ * @i: the command count
+ * @exit_status: exit status
+ */
+void run_command(char **args, char *name, char **env, int i, int *ex)
+{
+	pid_t child_pid;
+	char *path;
+	int b = 1, status;
+
+	b = run_built_in(args, env);
+	if (b == -1)
+	{
+		print_error(name, i, args[0], "error");
+		return;
+	}
+	else if (b == 0)
+		return;
+	path = find_exec_path(args[0], env);
+	if (path == NULL)
+	{
+		print_error(name, i, args[0], "not found");
+		*ex = 127;
+		return;
+	}
+	child_pid = fork();
+	if (child_pid == -1)
+		print_error(name, i, "fork", "Can't create another process");
+	else if (child_pid == 0)
+	{
+		if (execve(path, args, env) == -1)
+			perror(args[0]);
+	}
+	else
+	{
+		if (wait(&status) == -1)
+			perror("wait");
+		else if (WIFEXITED(status))
+			*ex = WEXITSTATUS(status);
+	}
+	free(path);
+}
+
+/**
+ * run_built_in - runs a built-in command
+ * @args: the list of built-in commands
+ *
+ * Return: 0 on success, 1 otherwise
+ */
+int run_built_in(char **args, char **env)
+{
+	int i = 0;
+
+	builtin_t builtins[] = {
+		{"setenv", handle_setenv},
+		{"unsetenv", handle_unsetenv},
+		{"env", env_command},
+		{"cd", cd},
+		{NULL, NULL}};
+
+	while (builtins[i].cmd != NULL)
+	{
+		if (strcmp(args[0], builtins[i].cmd) == 0)
+		{
+			if (builtins[i].func(args, env) == -1)
+				return (-1);
+			return (0);
+		}
+		i++;
+	}
+	return (1);
+}
+
+void putprompt(void)
+{
+	char *prompt = "$ ";
+	if (isatty(STDIN_FILENO) == 1)
+		_puts(prompt);
 }
