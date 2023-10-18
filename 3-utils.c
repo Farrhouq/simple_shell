@@ -160,7 +160,7 @@ char *int_to_str(int num)
 	str = malloc(sizeof(char) * (i + 1));
 
 	if (str == NULL)
-		return NULL;
+		return (NULL);
 
 	str[i] = '\0';
 
