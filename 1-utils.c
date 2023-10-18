@@ -55,7 +55,6 @@ void free_array(char **array)
  *
  * Return: 0 on success, -1 otherwise
  */
-
 int _unsetenv(char *envname, char **env)
 {
 	int i = 0, j = 0, found = 0;
