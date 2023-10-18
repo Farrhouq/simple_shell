@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * _putchar - prints a character to stdout
  * @c: the char
@@ -34,7 +33,6 @@ int _puts(char *str)
  * @lineptr: destination
  * @n: number of chars read
  * @stream: the file stream to read from
- *
  * Return: number of characters read, -1 on error
  */
 ssize_t _getline(char **lineptr, size_t *n, FILE *stream)
