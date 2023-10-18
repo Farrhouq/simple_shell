@@ -1,5 +1,9 @@
 #include "shell.h"
-
+/**
+ * run_from_file-runs a set of commands from given file
+ * @filename:the name of the file
+ *@av: the caller's args
+ */
 int run_from_file(char *filename, char **av, char **env)
 {
 	FILE *file = fopen(filename, "r");
