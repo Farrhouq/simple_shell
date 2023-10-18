@@ -53,7 +53,9 @@ void clean_line(char *line)
 	}
 }
 /**
- * replace_env_vars-
+ * replace_env_vars-replaces environment variables in a line of command
+ * @line: the line
+ * @env: the caller's environment
  */
 void replace_env_vars(char *line, char **env)
 {
