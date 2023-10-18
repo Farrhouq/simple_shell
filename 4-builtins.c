@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * env_command - prints the environment variables
  * @av: the commands
@@ -50,7 +49,6 @@ int handle_unsetenv(char **av, char **env)
 		return (-1);
 	return (_unsetenv(av[1], env));
 }
-
 /**
  * cd - change directory
  * @args: the arguments
