@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * contains_and_or - checks if a command line has logical operators || or &&
  * @line: the line
