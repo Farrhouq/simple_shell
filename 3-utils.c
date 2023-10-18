@@ -98,3 +98,80 @@ void replace_env_vars(char *line, char **env)
     strcpy(line, modifiedLine);
     free(modifiedLine);
 }
+
+void replace_special_env(char *line, int exit_status)
+{
+    int i = 0, j = 0;
+    int lineLength = strlen(line);
+    char *modifiedLine = malloc((lineLength + 1) * sizeof(char));
+    char *exitStatusStr;
+    char pidStr[16];
+
+    while (i < lineLength)
+    {
+        if (line[i] == '$' && line[i + 1] == '$')
+        {
+            snprintf(pidStr, sizeof(pidStr), "%d", getpid());
+            strncpy(modifiedLine + j, pidStr, strlen(pidStr));
+            j += strlen(pidStr);
+            i += 2;
+        }
+        else if (line[i] == '$' && line[i + 1] == '?')
+        {
+            exitStatusStr = int_to_str(exit_status);
+            strncpy(modifiedLine + j, exitStatusStr, strlen(exitStatusStr));
+            j += strlen(exitStatusStr);
+            i += 2;
+            free(exitStatusStr);
+        }
+        else
+        {
+            modifiedLine[j] = line[i];
+            i++;
+            j++;
+        }
+    }
+
+    modifiedLine[j] = '\0';
+    strcpy(line, modifiedLine);
+
+    free(modifiedLine);
+}
+
+char *int_to_str(int num)
+{
+    int i = 0;
+    int n = num;
+    char *str;
+
+    if (num == 0)
+    {
+        str = malloc(sizeof(char) * 2);
+        str[0] = '0';
+        str[1] = '\0';
+        return str;
+    }
+
+    while (n > 0)
+    {
+        n /= 10;
+        i++;
+    }
+
+    n = num;
+    str = malloc(sizeof(char) * (i + 1));
+
+    if (str == NULL)
+        return NULL;
+
+    str[i] = '\0';
+
+    while (i > 0)
+    {
+        str[i - 1] = '0' + (n % 10);
+        n /= 10;
+        i--;
+    }
+
+    return str;
+}
