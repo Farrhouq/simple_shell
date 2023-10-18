@@ -12,13 +12,11 @@ int run_from_file(char *filename, char **av, char **env)
         fprintf(stderr, "Failed to open the file %s\n", filename);
         return (1);
     }
-
-
     while (fgets(line, sizeof(line), file) != NULL)
     {
         run_semis(line, &i, av, &ex, env);
     }
 
     fclose(file);
-    return (0);
+    return (ex);
 }

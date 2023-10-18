@@ -19,8 +19,8 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 	if (av[1] != NULL)
 	{
 		printf("executing from file %s\n", av[1]);
-		run_from_file(av[1], av, env);
-		return (0);
+		exit_status = run_from_file(av[1], av, env);
+		return (exit_status);
 	}
 
 	(void)aliases;
