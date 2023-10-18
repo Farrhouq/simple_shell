@@ -98,7 +98,7 @@ char *_strtok(char *str, const char *delim)
 }
 
 /**
- * error - prints error
+ * print_error - prints error
  * @name: name of the program
  * @err_count: command count error
  * @str: error string
