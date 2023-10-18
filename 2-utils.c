@@ -137,7 +137,6 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 	free_array(commands);
 	return (0);
 }
-
 /**
  * run_and - handles the logical operator &&
  * @line: the command line
