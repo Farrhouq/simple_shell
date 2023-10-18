@@ -1,9 +1,9 @@
 #include "shell.h"
 
 /**
- * main - the starting point of our simple shell
- * @ac: command line argument count
- * @av: NULL terminated strnig array of commandline arguments
+ * main - a simple shell
+ * @ac: argument count
+ * @av: array of commandline arguments
  * @env: the environment variables
  *
  * Return: 0 on success, 1 otherwise
@@ -14,7 +14,9 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 	ssize_t read;
 	size_t len = 0;
 	char *lineptr = NULL;
+	char **aliases;
 
+	(void) aliases;
 	putprompt();
 	while (!brk && ((read = _getline(&lineptr, &len, stdin)) != -1))
 	{

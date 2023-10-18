@@ -102,8 +102,8 @@ int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 		j = 0;
 		while (commands[j] != NULL)
 		{   line = commands[j++];
-
 			clean_line(line);
+			replace_env_vars(line, env);
 			if (contains_and_or(line, '&') || contains_and_or(line, '|'))
 			{   run_and_ex = run_and(line, av[0], env, i, exit_status);
 				if (run_and_ex == -1)

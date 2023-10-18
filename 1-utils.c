@@ -80,7 +80,7 @@ int _unsetenv(char *envname, char **env)
 }
 
 /**
- * _getenv - our own getenv function
+ * _getenv - custom getenv function
  * @var: the environment variable
  * @env: the caller's environment
  *
@@ -145,7 +145,6 @@ int _setenv(char *var, char *value, int overwrite, char **env)
 	strcat(envi, "=");
 	strcat(envi, value);
 	strcpy(env[i], envi);
-	/*env[i] = envi;*/
 	free(envi);
 	if (!found)
 		env[i + 1] = NULL;
