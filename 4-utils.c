@@ -1,6 +1,5 @@
 #include "shell.h"
-/**
- */
+
 int run_from_file(char *filename, char **av, char **env)
 {
 	FILE *file = fopen(filename, "r");
@@ -12,10 +11,8 @@ int run_from_file(char *filename, char **av, char **env)
 	if (file == NULL)
 	{
 		fprintf(stderr, "Failed to open the file %s\n", filename);
-
 		return (1);
-    }
-
+	}
 	while (fgets(line, sizeof(line), file) != NULL)
 	{
 		run_semis(line, &i, av, &ex, env);
