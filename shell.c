@@ -16,7 +16,7 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 	char *lineptr = NULL;
 	char **aliases;
 
-	(void) aliases;
+	(void)aliases;
 	putprompt();
 	while (!brk && ((read = _getline(&lineptr, &len, stdin)) != -1))
 	{

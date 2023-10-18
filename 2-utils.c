@@ -94,15 +94,21 @@ int run_ret(char **args, char *name, char **env, int i)
 int run_semis(char *lineptr, int *i, char **av, int *exit_status, char **env)
 {
 	char **commands, *line, **args;
-	int j, run_and_ex;
+	int j, run_and_ex, l;
 
 	if (!(is_spaces(lineptr)) && strlen(lineptr))
 	{
+		clean_line(lineptr);
+		for (l = 0; lineptr[l] != '\0'; l++)
+		{
+			if ((lineptr[l] == ';' && !lineptr[l + 1]))
+				lineptr[l] = '\0';
+		}
 		commands = gen_tokens(lineptr, ";");
 		j = 0;
 		while (commands[j] != NULL)
 		{   line = commands[j++];
-			clean_line(line);
+			/*clean_line(line);*/
 			replace_special_env(line, *exit_status);
 			replace_env_vars(line, env);
 			if (contains_and_or(line, '&') || contains_and_or(line, '|'))
