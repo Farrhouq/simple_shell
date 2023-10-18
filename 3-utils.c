@@ -101,7 +101,7 @@ void replace_env_vars(char *line, char **env)
 	free(modifiedLine);
 }
 /**
- * replace_special_env-handles the special variables $$ and $? in a line if command
+ * replace_special_env-handles the special variables $$ and $? in a line
  * @line : the line
  * @exit_status: exit status for $?
  */
@@ -143,7 +143,11 @@ void replace_special_env(char *line, int exit_status)
 
 	free(modifiedLine);
 }
-
+/**
+ *int_to_str-returns the string version of a number.
+ *@num: the number
+ *Return: the sting of a number
+ */
 char *int_to_str(int num)
 {
 	int i = 0;
