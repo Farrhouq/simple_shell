@@ -52,7 +52,9 @@ void clean_line(char *line)
 			line[i] = '\0';
 	}
 }
-
+/**
+ * replace_env_vars-
+ */
 void replace_env_vars(char *line, char **env)
 {
 	int i = 0;
