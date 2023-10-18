@@ -67,30 +67,21 @@ int cd(char **args, char **env)
 	if (args[1] == NULL)
 	{
 		if (chdir(_getenv("HOME", env)) == -1)
-		{
-			free(old_pwd);
 			return (-1);
-		}
 		_setenv("PWD", _getenv("HOME", env), 1, env);
 	}
 	else if (args[1][0] == '-')
 	{
 		if (chdir(_getenv("OLDPWD", env)) == -1)
-		{
-			free(old_pwd);
 			return (-1);
-		}
 		_setenv("PWD", _getenv("OLDPWD", env), 1, env);
 	}
 	else
 	{
 		if (chdir(args[1]) == -1)
-		{
-			free(old_pwd);
 			return (-1);
-		}
 		_setenv("PWD", _getenv(args[1], env), 1, env);
 	}
-	free(old_pwd);
+
 	return (0);
 }

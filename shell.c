@@ -16,6 +16,13 @@ int main(__attribute__((unused)) int ac, char **av, char **env)
 	char *lineptr = NULL;
 	char **aliases;
 
+	if (av[1] != NULL)
+	{
+		printf("executing from file %s\n", av[1]);
+		run_from_file(av[1], av, env);
+		return (0);
+	}
+
 	(void)aliases;
 	putprompt();
 	while (!brk && ((read = _getline(&lineptr, &len, stdin)) != -1))

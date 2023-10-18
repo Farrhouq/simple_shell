@@ -60,5 +60,6 @@ void clean_line(char *line);
 void replace_env_vars(char *line, char **env);
 void replace_special_env(char *line, int exit_status);
 char *int_to_str(int num);
+int run_from_file(char *filename, char **av, char **env);
 
 #endif
