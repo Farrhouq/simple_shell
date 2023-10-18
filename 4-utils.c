@@ -2,7 +2,8 @@
 /**
  * run_from_file-runs a set of commands from given file
  * @filename:the name of the file
- *@av: the caller's args
+ * @av: the caller's args
+ * @env: a set of command from a file
  */
 int run_from_file(char *filename, char **av, char **env)
 {
