@@ -100,7 +100,8 @@ void replace_env_vars(char *line, char **env)
 	strcpy(line, modifiedLine);
 	free(modifiedLine);
 }
-/*replace_special_env-handles the special variables $$ and $? in a line if command
+/**
+ * replace_special_env-handles the special variables $$ and $? in a line if command
  * @line : the line
  * @exit_status: exit status for $?
  */
