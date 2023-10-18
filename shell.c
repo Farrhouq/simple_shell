@@ -1,5 +1,4 @@
 #include "shell.h"
-
 /**
  * main - a simple shell
  * @ac: argument count
@@ -59,7 +58,7 @@ int is_spaces(char *str)
 /**
  * find_exec_path - finds the path of a command
  * @command: the command
- *
+ * @env:
  * Return: the full path if found else NULL
  */
 char *find_exec_path(char *command, char **env)
